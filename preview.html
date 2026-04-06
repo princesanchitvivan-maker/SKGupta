@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SK Gupta Banking App Budget Tracker 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --bg2: #111827;
+      --card: rgba(255, 255, 255, 0.08);
+      --card-solid: #111827;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary2: #60a5fa;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --border: rgba(255,255,255,0.12);
+      --shadow: 0 12px 30px rgba(0,0,0,0.25);
+      --sidebar-width: 260px;
+    }
+
+    body.light {
+      --bg: #edf4ff;
+      --bg2: #f8fafc;
+      --card: rgba(255, 255, 255, 0.75);
+      --card-solid: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --primary: #2563eb;
+      --primary2: #60a5fa;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --border: rgba(15,23,42,0.08);
+      --shadow: 0 12px 30px rgba(15,23,42,0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.15), transparent 25%),
+        radial-gradient(circle at top right, rgba(34,197,94,0.10), transparent 25%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+      color: var(--text);
+      transition: all 0.25s ease;
+    }
+
+    body.light {
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,0.08), transparent 25%),
+        radial-gradient(circle at top right, rgba(22,163,74,0.06), transparent 25%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .glass {
+      background: var(--card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 20px;
+    }
+
+    /* LOGIN SCREEN */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px;
+      text-align: center;
+    }
+
+    .login-card h1 {
+      margin-top: 0;
+      font-size: 30px;
+    }
+
+    .login-card p {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .pin-box {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .pin-box input {
+      width: 58px;
+      height: 58px;
+      text-align: center;
+      font-size: 24px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      outline: none;
+    }
+
+    body.light .pin-box input {
+      background: rgba(255,255,255,0.95);
+      color: #0f172a;
+    }
+
+    .login-card input[type="text"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      margin-bottom: 14px;
+      font-size: 15px;
+    }
+
+    body.light .login-card input[type="text"] {
+      background: rgba(255,255,255,0.95);
+      color: #0f172a;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 15px;
+      transition: 0.2s ease;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    .btn-success { background: linear-gradient(135deg, var(--success), #4ade80); }
+    .btn-danger { background: linear-gradient(135deg, var(--danger), #f87171); }
+    .btn-warning { background: linear-gradient(135deg, var(--warning), #fbbf24); color: #111; }
+    .btn-dark { background: linear-gradient(135deg, #334155, #0f172a); }
+
+    .small-note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* APP LAYOUT */
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      padding: 22px 18px;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+      z-index: 1000;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 26px;
+    }
+
+    .brand-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 18px;
+      background: linear-gradient(135deg, var(--primary), var(--success));
+      color: white;
+      box-shadow: var(--shadow);
+    }
+
+    .brand h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .brand p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .profile-card {
+      padding: 16px;
+      margin-bottom: 22px;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 12px;
+      font-size: 24px;
+      font-weight: bold;
+      background: linear-gradient(135deg, var(--primary), var(--success));
+      color: white;
+    }
+
+    .profile-card h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .profile-card p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .nav-links a, .nav-links button {
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: 0.2s ease;
+      width: 100%;
+    }
+
+    .nav-links a:hover, .nav-links button:hover {
+      background: rgba(59,130,246,0.16);
+      transform: translateX(4px);
+    }
+
+    .main {
+      margin-left: var(--sidebar-width);
+      width: calc(100% - var(--sidebar-width));
+      padding: 22px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-actions button {
+      width: auto;
+      min-width: 140px;
+    }
+
+    .section {
+      padding: 20px;
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      font-size: 24px;
+    }
+
+    .form-grid, .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.08);
+      color: var(--text);
+      outline: none;
+      font-size: 14px;
+    }
+
+    body.light input,
+    body.light select {
+      background: rgba(255,255,255,0.95);
+      color: #0f172a;
+    }
+
+    input::placeholder {
+      color: var(--muted);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .summary-card {
+      padding: 20px;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-card::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .summary-card h3 {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .summary-card p {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .income { color: var(--success); }
+    .expense { color: var(--danger); }
+    .balance { color: var(--primary); }
+    .recordsCount { color: var(--warning); }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: rgba(59,130,246,0.12);
+      color: var(--text);
+      position: sticky;
+      top: 0;
+    }
+
+    tr:hover {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge-income {
+      background: rgba(34,197,94,0.16);
+      color: #22c55e;
+    }
+
+    .badge-expense {
+      background: rgba(239,68,68,0.16);
+      color: #ef4444;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .table-actions button {
+      width: auto;
+      min-width: 80px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .chart-box {
+      padding: 18px;
+      min-height: 380px;
+    }
+
+    .chart-box h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 300px !important;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      margin-top: 24px;
+      padding: 18px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.08);
+      border-radius: 18px;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      width: auto !important;
+      min-width: auto !important;
+      padding: 10px 14px !important;
+    }
+
+    .sidebar-overlay {
+      display: none;
+    }
+
+    @media (max-width: 992px) {
+      .mobile-menu-btn {
+        display: inline-block;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: 0.25s ease;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.45);
+        z-index: 900;
+      }
+
+      .sidebar-overlay.show {
+        display: block;
+      }
+
+      .main {
+        margin-left: 0;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .topbar h1 {
+        font-size: 24px;
+      }
+
+      .summary-card p {
+        font-size: 24px;
+      }
+
+      .pin-box input {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SCREEN -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card glass">
+      <h1>🏦 SK Gupta Bank</h1>
+      <p>Secure Premium Budget Dashboard Login</p>
+
+      <input type="text" id="userNameInput" placeholder="Enter Your Name" />
+
+      <div class="pin-box">
+        <input type="password" maxlength="1" class="pin-digit" />
+        <input type="password" maxlength="1" class="pin-digit" />
+        <input type="password" maxlength="1" class="pin-digit" />
+        <input type="password" maxlength="1" class="pin-digit" />
+      </div>
+
+      <button class="btn" onclick="loginApp()">🔐 Login / Enter App</button>
+      <button class="btn btn-warning" style="margin-top:10px;" onclick="setNewPin()">🆕 Set / Change PIN</button>
+
+      <div class="small-note">
+        Default PIN if not set: <b>1234</b>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="appScreen" class="app hidden">
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar glass">
+      <div class="brand">
+        <div class="brand-logo">SK</div>
+        <div>
+          <h2>SK Bank</h2>
+          <p>Premium Finance 2026</p>
+        </div>
+      </div>
+
+      <div class="profile-card glass">
+        <div class="avatar" id="avatarText">S</div>
+        <h3 id="displayUserName">User</h3>
+        <p>Personal Budget Control</p>
+      </div>
+
+      <div class="nav-links">
+        <a href="#dashboard">🏠 Dashboard</a>
+        <a href="#addRecord">➕ Add Record</a>
+        <a href="#records">📋 All Records</a>
+        <a href="#charts">📊 Charts</a>
+        <a href="#monthly">📅 Monthly Report</a>
+        <a href="#yearly">📈 Yearly Report</a>
+        <button onclick="toggleTheme()">🌙 / ☀ Toggle Theme</button>
+        <button class="btn-success" onclick="downloadCSV()">⬇ Export CSV</button>
+        <button class="btn-danger" onclick="clearAllData()">🗑 Clear All Data</button>
+        <button class="btn-warning" onclick="logoutApp()">🚪 Logout</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="topbar" id="dashboard">
+        <div>
+          <button class="btn mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+          <h1>🏦 Banking Dashboard</h1>
+          <p>Welcome back, <span id="welcomeUser">User</span> 👋</p>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="btn btn-dark" onclick="toggleTheme()">Theme</button>
+          <button class="btn btn-success" onclick="downloadCSV()">Export</button>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="summary-grid">
+        <div class="summary-card glass">
+          <h3>💰 Total Income</h3>
+          <p class="income" id="totalIncome">₹0</p>
+        </div>
+
+        <div class="summary-card glass">
+          <h3>💸 Total Expense</h3>
+          <p class="expense" id="totalExpense">₹0</p>
+        </div>
+
+        <div class="summary-card glass">
+          <h3>🏦 Net Balance</h3>
+          <p class="balance" id="totalBalance">₹0</p>
+        </div>
+
+        <div class="summary-card glass">
+          <h3>📌 Total Records</h3>
+          <p class="recordsCount" id="totalRecords">0</p>
+        </div>
+      </div>
+
+      <!-- ADD RECORD -->
+      <section id="addRecord" class="section glass">
+        <h2 class="section-title">➕ Add / Edit Transaction</h2>
+        <div class="form-grid">
+          <div>
+            <label>Date</label>
+            <input type="date" id="date">
+          </div>
+
+          <div>
+            <label>Category</label>
+            <select id="category">
+              <option>Income</option>
+              <option>Shopping</option>
+              <option>Grocery</option>
+              <option>Food Delivery</option>
+              <option>Medicine</option>
+              <option>Entertainment</option>
+              <option>Transport</option>
+              <option>Petrol/Diesel</option>
+              <option>Electricity</option>
+              <option>Gas</option>
+              <option>Water</option>
+              <option>Telecom</option>
+              <option>Banking/Insurance</option>
+              <option>Gaming</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label>Company / Source</label>
+            <input type="text" id="company" placeholder="Salary, Flipkart, Swiggy">
+          </div>
+
+          <div>
+            <label>Amount (₹)</label>
+            <input type="number" id="amount" placeholder="Enter amount">
+          </div>
+
+          <div>
+            <label>Remarks</label>
+            <input type="text" id="remarks" placeholder="Optional note">
+          </div>
+
+          <div>
+            <label>Action</label>
+            <button class="btn" onclick="addOrUpdateRecord()">💾 Save Transaction</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILTERS -->
+      <section class="section glass">
+        <h2 class="section-title">🔍 Smart Search & Filters</h2>
+        <div class="filter-grid">
+          <div>
+            <label>Search Company / Remarks</label>
+            <input type="text" id="searchText" placeholder="Search..." oninput="renderAll()">
+          </div>
+
+          <div>
+            <label>Filter Category</label>
+            <select id="filterCategory" onchange="renderAll()">
+              <option value="">All Categories</option>
+              <option>Income</option>
+              <option>Shopping</option>
+              <option>Grocery</option>
+              <option>Food Delivery</option>
+              <option>Medicine</option>
+              <option>Entertainment</option>
+              <option>Transport</option>
+              <option>Petrol/Diesel</option>
+              <option>Electricity</option>
+              <option>Gas</option>
+              <option>Water</option>
+              <option>Telecom</option>
+              <option>Banking/Insurance</option>
+              <option>Gaming</option>
+              <option>Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label>From Date</label>
+            <input type="date" id="fromDate" onchange="renderAll()">
+          </div>
+
+          <div>
+            <label>To Date</label>
+            <input type="date" id="toDate" onchange="renderAll()">
+          </div>
+        </div>
+      </section>
+
+      <!-- RECORDS -->
+      <section id="records" class="section glass">
+        <h2 class="section-title">📋 All Transactions</h2>
+        <div class="table-wrap">
+          <table id="recordsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Company / Source</th>
+                <th>Amount (₹)</th>
+                <th>Remarks</th>
+                <th>Type</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CHARTS -->
+      <section id="charts" class="charts">
+        <div class="chart-box glass">
+          <h3>🥧 Expense Distribution</h3>
+          <canvas id="pieChart"></canvas>
+        </div>
+
+        <div class="chart-box glass">
+          <h3>📊 Category-wise Expenses</h3>
+          <canvas id="barChart"></canvas>
+        </div>
+
+        <div class="chart-box glass" style="grid-column: 1 / -1;">
+          <h3>📈 Monthly Net Balance Trend</h3>
+          <canvas id="lineChart"></canvas>
+        </div>
+      </section>
+
+      <!-- MONTHLY REPORT -->
+      <section id="monthly" class="section glass">
+        <h2 class="section-title">📅 Monthly Report</h2>
+        <div class="table-wrap">
+          <table id="monthlyReport">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Total Income</th>
+                <th>Total Expense</th>
+                <th>Net Balance</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- YEARLY REPORT -->
+      <section id="yearly" class="section glass">
+        <h2 class="section-title">📈 Yearly Report</h2>
+        <div class="table-wrap">
+          <table id="yearlyReport">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Total Income</th>
+                <th>Total Expense</th>
+                <th>Net Balance</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer>
+        This site developed by SK Gupta © 2026
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // =========================
+    // STORAGE KEYS
+    // =========================
+    const RECORDS_KEY = "skBankBudgetRecords2026";
+    const THEME_KEY = "skBankTheme2026";
+    const USER_KEY = "skBankUserName2026";
+    const PIN_KEY = "skBankPin2026";
+    const LOGIN_KEY = "skBankLoggedIn2026";
+
+    let allRecords = JSON.parse(localStorage.getItem(RECORDS_KEY)) || [];
+    let editIndex = -1;
+
+    // =========================
+    // THEME INIT
+    // =========================
+    if (localStorage.getItem(THEME_KEY) === "light") {
+      document.body.classList.add("light");
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("light");
+      localStorage.setItem(THEME_KEY, document.body.classList.contains("light") ? "light" : "dark");
+      updateChartTheme();
+    }
+
+    // =========================
+    // SIDEBAR
+    // =========================
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarOverlay").classList.toggle("show");
+    }
+
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarOverlay").classList.remove("show");
+    }
+
+    // =========================
+    // LOGIN / PIN
+    // =========================
+    function getPinValue() {
+      const digits = document.querySelectorAll(".pin-digit");
+      return Array.from(digits).map(d => d.value).join("");
+    }
+
+    function autoMovePin() {
+      const digits = document.querySelectorAll(".pin-digit");
+      digits.forEach((input, index) => {
+        input.addEventListener("input", () => {
+          if (input.value.length === 1 && index < digits.length - 1) {
+            digits[index + 1].focus();
+          }
+        });
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace" && !input.value && index > 0) {
+            digits[index - 1].focus();
+          }
+        });
+      });
+    }
+
+    function setNewPin() {
+      const enteredName = document.getElementById("userNameInput").value.trim() || "User";
+      const newPin = prompt("Enter new 4-digit PIN:");
+      if (!newPin || newPin.length !== 4 || isNaN(newPin)) {
+        alert("PIN must be exactly 4 digits.");
+        return;
+      }
+      localStorage.setItem(PIN_KEY, newPin);
+      localStorage.setItem(USER_KEY, enteredName);
+      alert("✅ New PIN saved successfully!");
+    }
+
+    function loginApp() {
+      const enteredName = document.getElementById("userNameInput").value.trim() || localStorage.getItem(USER_KEY) || "User";
+      const enteredPin = getPinValue();
+      const savedPin = localStorage.getItem(PIN_KEY) || "1234";
+
+      if (enteredPin !== savedPin) {
+        alert("❌ Wrong PIN! Try again.");
+        return;
+      }
+
+      localStorage.setItem(USER_KEY, enteredName);
+      localStorage.setItem(LOGIN_KEY, "true");
+
+      showApp();
+    }
+
+    function logoutApp() {
+      if (confirm("Logout from app?")) {
+        localStorage.removeItem(LOGIN_KEY);
+        document.getElementById("appScreen").classList.add("hidden");
+        document.getElementById("loginScreen").classList.remove("hidden");
+
+        document.querySelectorAll(".pin-digit").forEach(i => i.value = "");
+        document.getElementById("userNameInput").value = localStorage.getItem(USER_KEY) || "";
+      }
+    }
+
+    function showApp() {
+      document.getElementById("loginScreen").classList.add("hidden");
+      document.getElementById("appScreen").classList.remove("hidden");
+
+      const userName = localStorage.getItem(USER_KEY) || "User";
+      document.getElementById("displayUserName").innerText = userName;
+      document.getElementById("welcomeUser").innerText = userName;
+      document.getElementById("avatarText").innerText = userName.charAt(0).toUpperCase();
+
+      renderAll();
+    }
+
+    function initLoginState() {
+      const savedName = localStorage.getItem(USER_KEY) || "";
+      document.getElementById("userNameInput").value = savedName;
+
+      if (localStorage.getItem(LOGIN_KEY) === "true") {
+        showApp();
+      }
+    }
+
+    // =========================
+    // CHARTS
+    // =========================
+    function getTextColor() {
+      return document.body.classList.contains("light") ? "#0f172a" : "#f8fafc";
+    }
+
+    const pieChart = new Chart(document.getElementById("pieChart"), {
+      type: "pie",
+      data: {
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: [
+            "#3b82f6","#ef4444","#22c55e","#f59e0b","#8b5cf6",
+            "#06b6d4","#ec4899","#84cc16","#f97316","#14b8a6",
+            "#a855f7","#eab308","#64748b"
+          ]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: {
+            labels: { color: getTextColor() }
+          }
+        }
+      }
+    });
+
+    const barChart = new Chart(document.getElementById("barChart"), {
+      type: "bar",
+      data: {
+        labels: [],
+        datasets: [{
+          label: "Expenses by Category",
+          data: [],
+          backgroundColor: "#3b82f6"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: { color: getTextColor() }
+          }
+        },
+        scales: {
+          x: { ticks: { color: getTextColor() } },
+          y: { ticks: { color: getTextColor() } }
+        }
+      }
+    });
+
+    const lineChart = new Chart(document.getElementById("lineChart"), {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [{
+          label: "Monthly Net Balance",
+          data: [],
+          borderColor: "#22c55e",
+          backgroundColor: "rgba(34,197,94,0.12)",
+          fill: true,
+          tension: 0.35
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: { color: getTextColor() }
+          }
+        },
+        scales: {
+          x: { ticks: { color: getTextColor() } },
+          y: { ticks: { color: getTextColor() } }
+        }
+      }
+    });
+
+    function updateChartTheme() {
+      pieChart.options.plugins.legend.labels.color = getTextColor();
+      barChart.options.plugins.legend.labels.color = getTextColor();
+      barChart.options.scales.x.ticks.color = getTextColor();
+      barChart.options.scales.y.ticks.color = getTextColor();
+      lineChart.options.plugins.legend.labels.color = getTextColor();
+      lineChart.options.scales.x.ticks.color = getTextColor();
+      lineChart.options.scales.y.ticks.color = getTextColor();
+
+      pieChart.update();
+      barChart.update();
+      lineChart.update();
+    }
+
+    // =========================
+    // DATA FUNCTIONS
+    // =========================
+    function saveData() {
+      localStorage.setItem(RECORDS_KEY, JSON.stringify(allRecords));
+    }
+
+    function addOrUpdateRecord() {
+      const date = document.getElementById("date").value;
+      const category = document.getElementById("category").value;
+      const company = document.getElementById("company").value.trim();
+      const amount = parseFloat(document.getElementById("amount").value);
+      const remarks = document.getElementById("remarks").value.trim();
+
+      if (!date || !company || isNaN(amount) || amount <= 0) {
+        alert("Please fill Date, Company and valid Amount!");
+        return;
+      }
+
+      const type = category === "Income" ? "Income" : "Expense";
+      const record = { date, category, company, amount, remarks, type };
+
+      if (editIndex === -1) {
+        allRecords.push(record);
+      } else {
+        allRecords[editIndex] = record;
+        editIndex = -1;
+      }
+
+      saveData();
+      clearForm();
+      renderAll();
+      alert("✅ Transaction saved successfully!");
+    }
+
+    function clearForm() {
+      document.getElementById("date").value = "";
+      document.getElementById("category").value = "Income";
+      document.getElementById("company").value = "";
+      document.getElementById("amount").value = "";
+      document.getElementById("remarks").value = "";
+    }
+
+    function getFilteredRecords() {
+      const searchText = document.getElementById("searchText").value.toLowerCase();
+      const filterCategory = document.getElementById("filterCategory").value;
+      const fromDate = document.getElementById("fromDate").value;
+      const toDate = document.getElementById("toDate").value;
+
+      return allRecords.filter(record => {
+        const matchesSearch =
+          record.company.toLowerCase().includes(searchText) ||
+          record.remarks.toLowerCase().includes(searchText);
+
+        const matchesCategory = !filterCategory || record.category === filterCategory;
+        const matchesFromDate = !fromDate || record.date >= fromDate;
+        const matchesToDate = !toDate || record.date <= toDate;
+
+        return matchesSearch && matchesCategory && matchesFromDate && matchesToDate;
+      });
+    }
+
+    function editRecord(index) {
+      const filtered = getFilteredRecords();
+      const record = filtered[index];
+      const realIndex = allRecords.findIndex(r =>
+        r.date === record.date &&
+        r.category === record.category &&
+        r.company === record.company &&
+        r.amount === record.amount &&
+        r.remarks === record.remarks &&
+        r.type === record.type
+      );
+
+      if (realIndex === -1) return;
+
+      editIndex = realIndex;
+      document.getElementById("date").value = record.date;
+      document.getElementById("category").value = record.category;
+      document.getElementById("company").value = record.company;
+      document.getElementById("amount").value = record.amount;
+      document.getElementById("remarks").value = record.remarks;
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function deleteRecord(index) {
+      const filtered = getFilteredRecords();
+      const record = filtered[index];
+      const realIndex = allRecords.findIndex(r =>
+        r.date === record.date &&
+        r.category === record.category &&
+        r.company === record.company &&
+        r.amount === record.amount &&
+        r.remarks === record.remarks &&
+        r.type === record.type
+      );
+
+      if (realIndex !== -1 && confirm("Delete this transaction?")) {
+        allRecords.splice(realIndex, 1);
+        saveData();
+        renderAll();
+      }
+    }
+
+    function clearAllData() {
+      if (confirm("⚠ Are you sure you want to delete ALL transactions?")) {
+        allRecords = [];
+        saveData();
+        renderAll();
+      }
+    }
+
+    // =========================
+    // RENDER TABLE
+    // =========================
+    function renderTable() {
+      const tbody = document.querySelector("#recordsTable tbody");
+      tbody.innerHTML = "";
+
+      const filteredRecords = getFilteredRecords();
+
+      filteredRecords.forEach((record, index) => {
+        const row = tbody.insertRow();
+
+        row.insertCell(0).innerText = record.date;
+        row.insertCell(1).innerText = record.category;
+        row.insertCell(2).innerText = record.company;
+        row.insertCell(3).innerText = "₹" + record.amount.toFixed(2);
+        row.insertCell(4).innerText = record.remarks || "-";
+        row.insertCell(5).innerHTML = record.type === "Income"
+          ? `<span class="badge badge-income">Income</span>`
+          : `<span class="badge badge-expense">Expense</span>`;
+
+        row.insertCell(6).innerHTML = `
+          <div class="table-actions">
+            <button class="btn btn-warning" onclick="editRecord(${index})">Edit</button>
+            <button class="btn btn-danger" onclick="deleteRecord(${index})">Delete</button>
+          </div>
+        `;
+      });
+    }
+
+    // =========================
+    // REPORTS + CHARTS + SUMMARY
+    // =========================
+    function updateSummaryReportsCharts() {
+      let totalIncome = 0;
+      let totalExpense = 0;
+      let categoryData = {};
+      let monthlyData = {};
+      let yearlyData = {};
+
+      allRecords.forEach(record => {
+        const amount = record.amount;
+        const dateObj = new Date(record.date);
+        const month = dateObj.toLocaleString("default", { month: "short", year: "numeric" });
+        const year = dateObj.getFullYear();
+
+        if (!monthlyData[month]) monthlyData[month] = { income: 0, expense: 0 };
+        if (!yearlyData[year]) yearlyData[year] = { income: 0, expense: 0 };
+
+        if (record.type === "Income") {
+          totalIncome += amount;
+          monthlyData[month].income += amount;
+          yearlyData[year].income += amount;
+        } else {
+          totalExpense += amount;
+          monthlyData[month].expense += amount;
+          yearlyData[year].expense += amount;
+
+          if (!categoryData[record.category]) categoryData[record.category] = 0;
+          categoryData[record.category] += amount;
+        }
+      });
+
+      document.getElementById("totalIncome").innerText = "₹" + totalIncome.toFixed(2);
+      document.getElementById("totalExpense").innerText = "₹" + totalExpense.toFixed(2);
+      document.getElementById("totalBalance").innerText = "₹" + (totalIncome - totalExpense).toFixed(2);
+      document.getElementById("totalRecords").innerText = allRecords.length;
+
+      // Pie
+      pieChart.data.labels = Object.keys(categoryData);
+      pieChart.data.datasets[0].data = Object.values(categoryData);
+      pieChart.update();
+
+      // Bar
+      barChart.data.labels = Object.keys(categoryData);
+      barChart.data.datasets[0].data = Object.values(categoryData);
+      barChart.update();
+
+      // Line
+      const sortedMonths = Object.keys(monthlyData).sort((a, b) => new Date(a) - new Date(b));
+      lineChart.data.labels = sortedMonths;
+      lineChart.data.datasets[0].data = sortedMonths.map(m => monthlyData[m].income - monthlyData[m].expense);
+      lineChart.update();
+
+      renderMonthlyReport(monthlyData);
+      renderYearlyReport(yearlyData);
+    }
+
+    function renderMonthlyReport(monthlyData) {
+      const tbody = document.querySelector("#monthlyReport tbody");
+      tbody.innerHTML = "";
+
+      const sortedMonths = Object.keys(monthlyData).sort((a, b) => new Date(a) - new Date(b));
+
+      sortedMonths.forEach(month => {
+        const income = monthlyData[month].income;
+        const expense = monthlyData[month].expense;
+        const balance = income - expense;
+
+        const row = tbody.insertRow();
+        row.insertCell(0).innerText = month;
+        row.insertCell(1).innerText = "₹" + income.toFixed(2);
+        row.insertCell(2).innerText = "₹" + expense.toFixed(2);
+        row.insertCell(3).innerText = "₹" + balance.toFixed(2);
+      });
+    }
+
+    function renderYearlyReport(yearlyData) {
+      const tbody = document.querySelector("#yearlyReport tbody");
+      tbody.innerHTML = "";
+
+      Object.keys(yearlyData).sort().forEach(year => {
+        const income = yearlyData[year].income;
+        const expense = yearlyData[year].expense;
+        const balance = income - expense;
+
+        const row = tbody.insertRow();
+        row.insertCell(0).innerText = year;
+        row.insertCell(1).innerText = "₹" + income.toFixed(2);
+        row.insertCell(2).innerText = "₹" + expense.toFixed(2);
+        row.insertCell(3).innerText = "₹" + balance.toFixed(2);
+      });
+    }
+
+    // =========================
+    // EXPORT CSV
+    // =========================
+    function downloadCSV() {
+      if (allRecords.length === 0) {
+        alert("No transactions available!");
+        return;
+      }
+
+      let csv = "Date,Category,Company/Source,Amount,Remarks,Type\n";
+
+      allRecords.forEach(record => {
+        csv += `"${record.date}","${record.category}","${record.company}","${record.amount}","${record.remarks}","${record.type}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "SK_Gupta_Banking_Budget_Report.csv";
+      link.click();
+    }
+
+    // =========================
+    // MASTER RENDER
+    // =========================
+    function renderAll() {
+      renderTable();
+      updateSummaryReportsCharts();
+      updateChartTheme();
+    }
+
+    // =========================
+    // INIT
+    // =========================
+    autoMovePin();
+    initLoginState();
+  </script>
+</body>
+</html>
