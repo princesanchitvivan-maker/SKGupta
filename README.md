@@ -1,2 +1,0 @@
-# SKGupta
-Budget Finance App
