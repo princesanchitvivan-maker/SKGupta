@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SK Gupta Ultimate Banking App 2026</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI;
+  background:#0f172a;
+  color:#fff;
+}
+
+/* LOGIN */
+#login{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.card{
+  background:#1e293b;
+  padding:25px;
+  border-radius:15px;
+  width:320px;
+  text-align:center;
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border:none;
+  border-radius:8px;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#3b82f6;
+  color:white;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+button:hover{opacity:.8}
+
+#app{display:none;padding:15px}
+
+/* DASHBOARD */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
+
+.box{
+  background:#1e293b;
+  padding:15px;
+  border-radius:12px;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #333;
+}
+
+/* EXTRA */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="card">
+    <h2>🏦 SK Bank</h2>
+    <input id="name" placeholder="Enter Name">
+    <input id="pin" type="password" placeholder="Enter PIN (1234)">
+    <button onclick="login()">Login</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+<div class="topbar">
+  <h2>Dashboard</h2>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<!-- SUMMARY -->
+<div class="grid">
+  <div class="box">Income: ₹<span id="inc">0</span></div>
+  <div class="box">Expense: ₹<span id="exp">0</span></div>
+  <div class="box">Balance: ₹<span id="bal">0</span></div>
+</div>
+
+<!-- ADD -->
+<h3>Add Transaction</h3>
+<input type="date" id="date">
+<select id="cat">
+<option>Income</option>
+<option>Food</option>
+<option>Shopping</option>
+<option>Travel</option>
+</select>
+<input id="amt" type="number" placeholder="Amount">
+<button onclick="add()">Add</button>
+
+<!-- TABLE -->
+<table id="tbl">
+<tr><th>Date</th><th>Cat</th><th>Amt</th><th>Action</th></tr>
+</table>
+
+<!-- GOAL -->
+<h3>🎯 Savings Goal</h3>
+<input id="goal" placeholder="Enter Goal Amount">
+<button onclick="setGoal()">Set Goal</button>
+<p>Goal: ₹<span id="goalVal">0</span></p>
+
+<!-- EMI -->
+<h3>💸 EMI Calculator</h3>
+<input id="loan" placeholder="Loan Amount">
+<input id="rate" placeholder="Interest %">
+<input id="time" placeholder="Months">
+<button onclick="calcEMI()">Calculate EMI</button>
+<p id="emi"></p>
+
+<!-- CHART -->
+<canvas id="chart"></canvas>
+
+<!-- EXPORT -->
+<button onclick="downloadCSV()">Export CSV</button>
+<button onclick="window.print()">Print</button>
+
+</div>
+
+<script>
+let data=JSON.parse(localStorage.getItem("data"))||[];
+let goal=localStorage.getItem("goal")||0;
+
+function login(){
+  let pin=document.getElementById("pin").value;
+  if(pin==="1234"){
+    document.getElementById("login").style.display="none";
+    document.getElementById("app").style.display="block";
+    render();
+  }else alert("Wrong PIN");
+}
+
+function logout(){
+  location.reload();
+}
+
+function add(){
+  let d=document.getElementById("date").value;
+  let c=document.getElementById("cat").value;
+  let a=parseFloat(document.getElementById("amt").value);
+
+  data.push({d,c,a});
+  localStorage.setItem("data",JSON.stringify(data));
+  render();
+}
+
+function render(){
+  let tbl=document.getElementById("tbl");
+  tbl.innerHTML="<tr><th>Date</th><th>Cat</th><th>Amt</th><th>Action</th></tr>";
+
+  let inc=0,exp=0;
+
+  data.forEach((r,i)=>{
+    if(r.c==="Income") inc+=r.a;
+    else exp+=r.a;
+
+    tbl.innerHTML+=`<tr>
+    <td>${r.d}</td>
+    <td>${r.c}</td>
+    <td>${r.a}</td>
+    <td><button onclick="del(${i})">X</button></td>
+    </tr>`;
+  });
+
+  document.getElementById("inc").innerText=inc;
+  document.getElementById("exp").innerText=exp;
+  document.getElementById("bal").innerText=inc-exp;
+
+  document.getElementById("goalVal").innerText=goal;
+
+  chart();
+}
+
+function del(i){
+  data.splice(i,1);
+  localStorage.setItem("data",JSON.stringify(data));
+  render();
+}
+
+function setGoal(){
+  goal=document.getElementById("goal").value;
+  localStorage.setItem("goal",goal);
+  render();
+}
+
+function calcEMI(){
+  let P=+loan.value;
+  let R=+rate.value/12/100;
+  let N=+time.value;
+  let EMI=(P*R*(1+R)**N)/((1+R)**N-1);
+  emi.innerText="Monthly EMI: ₹"+EMI.toFixed(2);
+}
+
+function chart(){
+  let ctx=document.getElementById("chart");
+  new Chart(ctx,{
+    type:"pie",
+    data:{
+      labels:["Income","Expense"],
+      datasets:[{
+        data:[
+          +inc.innerText,
+          +exp.innerText
+        ]
+      }]
+    }
+  });
+}
+
+function downloadCSV(){
+  let csv="Date,Category,Amount\n";
+  data.forEach(r=>{
+    csv+=`${r.d},${r.c},${r.a}\n`;
+  });
+  let blob=new Blob([csv]);
+  let a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="report.csv";
+  a.click();
+}
+</script>
+
+</body>
+</html>
